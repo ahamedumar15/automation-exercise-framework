@@ -23,7 +23,7 @@ This project showcases a **comprehensive test automation solution** for an e-com
 - ✅ **85%+ Test Coverage** of core application features
 - ✅ **60% Faster Execution** through parallel testing
 - ✅ **Multi-Browser Support** (Chrome, Firefox, Edge)
-- ✅ **CI/CD Ready** with GitHub Actions, GitLab CI, and Jenkins
+- ✅ **CI/CD Ready** with GitHub Actions
 - ✅ **Zero Hard-Coded Waits** using intelligent wait strategies
 - ✅ **Comprehensive Reporting** with HTML reports and screenshots
 
@@ -59,8 +59,6 @@ This project showcases a **comprehensive test automation solution** for an e-com
 ### 🔄 CI/CD Integration
 
 - **GitHub Actions** - Automated testing on push/PR
-- **GitLab CI** - Selenium Grid integration
-- **Jenkins** - Parameterized pipeline builds
 - **Docker Support** - Containerized test execution
 
 
@@ -217,26 +215,6 @@ pytest -v
 - ✅ **pytest Framework** - Fixtures, markers, plugins, parameterization
 - ✅ **Page Object Model** - Design pattern implementation
 - ✅ **CI/CD** - GitHub Actions
-
-### QA Engineering Practices
-
-- ✅ Test planning and strategy
-- ✅ Test case design (positive, negative, edge cases)
-- ✅ Defect identification and reporting
-- ✅ Test data management
-- ✅ Cross-browser testing
-- ✅ Continuous testing integration
-- ✅ Test reporting and metrics
-
-### Software Development
-
-- ✅ Clean code principles
-- ✅ SOLID principles
-- ✅ Design patterns
-- ✅ Code reusability
-- ✅ Error handling
-- ✅ Logging and debugging
-- ✅ Documentation
 
 ---
 
