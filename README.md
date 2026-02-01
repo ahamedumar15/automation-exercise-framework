@@ -1,4 +1,4 @@
-# E-Commerce Test Automation Framework
+#  E-Commerce Test Automation Framework
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![Selenium](https://img.shields.io/badge/Selenium-4.16.0-green.svg)
@@ -10,8 +10,6 @@
 > **Test automation framework** built with Python, Selenium WebDriver, and pytest. Demonstrates enterprise-level QA engineering practices including Page Object Model design, CI/CD integration, and comprehensive test coverage.
 
 **🔗 Live Application Under Test:** [automationexercise.com](https://automationexercise.com)
-
----
 
 
 
@@ -25,7 +23,7 @@ This project showcases a **comprehensive test automation solution** for an e-com
 - ✅ **85%+ Test Coverage** of core application features
 - ✅ **60% Faster Execution** through parallel testing
 - ✅ **Multi-Browser Support** (Chrome, Firefox, Edge)
-- ✅ **CI/CD Ready** with GitHub Actions
+- ✅ **CI/CD Ready** with GitHub Actions, GitLab CI, and Jenkins
 - ✅ **Zero Hard-Coded Waits** using intelligent wait strategies
 - ✅ **Comprehensive Reporting** with HTML reports and screenshots
 
@@ -58,8 +56,12 @@ This project showcases a **comprehensive test automation solution** for an e-com
 - **Screenshot Evidence** - Visual proof of test failures
 - **Comprehensive Logs** - Debug-friendly detailed logs
 
----
+### 🔄 CI/CD Integration
 
+- **GitHub Actions** - Automated testing on push/PR
+- **GitLab CI** - Selenium Grid integration
+- **Jenkins** - Parameterized pipeline builds
+- **Docker Support** - Containerized test execution
 
 
 ##  Architecture
@@ -93,13 +95,14 @@ This project showcases a **comprehensive test automation solution** for an e-com
 ### Functional Areas Tested
 
 | Module | Test Cases | Coverage |
-|--------|------------|----------|
-| **User Registration** | 4          | 90%      |
-| **Authentication** | 6          | 95%      |
-| **Product Browsing** | 7          | 85%      |
-| **Shopping Cart** | 8          | 85%      |
-| **Edge Cases** | 13         | 80%      |
-| **Total** | **35+**    | **87%+** |
+|--------|-----------|----------|
+| **User Registration** | 4 | 90% |
+| **Authentication** | 6 | 95% |
+| **Product Browsing** | 8 | 85% |
+| **Search Functionality** | 5 | 90% |
+| **Shopping Cart** | 8 | 85% |
+| **Edge Cases** | 14 | 80% |
+| **Total** | **40+** | **85%+** |
 
 ### Test Scenarios
 
@@ -120,7 +123,7 @@ This project showcases a **comprehensive test automation solution** for an e-com
 
 ---
 
-##  Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -132,7 +135,7 @@ This project showcases a **comprehensive test automation solution** for an e-com
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/automation-exercise-framework.git
+git clone https://github.com/ahamedumar15/automation-exercise-framework.git
 cd automation-exercise-framework
 
 # Create virtual environment
@@ -168,8 +171,7 @@ pytest -v
 
 ---
 
-
-##  Technologies Used
+## 🛠️ Technologies Used
 
 ### Core Framework
 
@@ -195,16 +197,11 @@ pytest -v
 
 ---
 
-
-
----
-
 ## 🎬 Demo
-
 
 ### Sample Test Report
 
-![HTML Report](https://via.placeholder.com/800x400/2196F3/FFFFFF?text=HTML+Test+Report)
+![HTML Report]()
 
 *View detailed test reports with pass/fail status, execution time, and screenshots*
 
@@ -220,7 +217,6 @@ pytest -v
 - ✅ **pytest Framework** - Fixtures, markers, plugins, parameterization
 - ✅ **Page Object Model** - Design pattern implementation
 - ✅ **CI/CD** - GitHub Actions
-- ✅ **Git/GitHub** - Version control and collaboration
 
 ### QA Engineering Practices
 
@@ -241,29 +237,6 @@ pytest -v
 - ✅ Error handling
 - ✅ Logging and debugging
 - ✅ Documentation
-
----
-
-
-## 🙏 Acknowledgments
-
-- **Automation Exercise** - Practice website for automation testing
-- **Selenium Community** - WebDriver documentation and support
-- **pytest Community** - Testing framework and plugins
-
----
-
-
-
-<div align="center">
-
-### ⭐ Star this repository if you found it helpful!
-
-**Made with ❤️ by Umar Ahamed**
-
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=ahamedumar15.automation-exercise-framework)
-
-</div>
 
 ---
 
