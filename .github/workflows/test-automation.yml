@@ -200,19 +200,3 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo " View detailed results in the 'Actions' tab" >> $GITHUB_STEP_SUMMARY
 
-  # Job 5: Notify on Failure (Optional)
-  notify-failure:
-    name: Notify on Test Failure
-    runs-on: ubuntu-latest
-    needs: [smoke-tests, regression-tests]
-    if: failure()
-
-    steps:
-    - name: Send notification
-      run: |
-        echo " Tests failed! Check the workflow run for details."
-        echo "This is where you'd integrate Slack, Email, or other notifications"
-        # Example Slack notification (requires SLACK_WEBHOOK secret):
-        # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"Test automation failed! Check GitHub Actions."}' \
-        #   ${{ secrets.SLACK_WEBHOOK }}
