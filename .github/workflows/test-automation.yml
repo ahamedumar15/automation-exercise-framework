@@ -1,0 +1,218 @@
+name: Test Automation CI/CD
+
+# When to run this workflow
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run daily at 2 AM UTC (nightly tests)
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+# Environment variables for all jobs
+env:
+  PYTHON_VERSION: '3.9'
+  HEADLESS: 'true'
+
+jobs:
+  # Job 1: Smoke Tests (Quick validation)
+  smoke-tests:
+    name: Smoke Tests (Quick Check)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run smoke tests
+      run: |
+        export BROWSER=chrome
+        export HEADLESS=true
+        pytest -m smoke -v --html=reports/smoke-report.html --self-contained-html --junitxml=reports/smoke-junit.xml
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: smoke-test-reports
+        path: |
+          reports/
+          logs/
+          screenshots/
+        retention-days: 30
+
+    - name: Publish test results
+      if: always()
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: reports/smoke-junit.xml
+        check_name: Smoke Test Results
+
+  # Job 2: Regression Tests (Full Suite)
+  regression-tests:
+    name: Regression Tests (Full Suite)
+    runs-on: ubuntu-latest
+    needs: smoke-tests  # Run only if smoke tests pass
+
+    strategy:
+      matrix:
+        browser: [chrome, firefox]
+      fail-fast: false  # Continue testing other browsers even if one fails
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install browser dependencies
+      run: |
+        if [ "${{ matrix.browser }}" == "firefox" ]; then
+          sudo apt-get update
+          sudo apt-get install -y firefox
+        fi
+
+    - name: Run regression tests
+      run: |
+        export BROWSER=${{ matrix.browser }}
+        export HEADLESS=true
+        pytest -m regression -n auto -v \
+          --html=reports/regression-${{ matrix.browser }}-report.html \
+          --self-contained-html \
+          --junitxml=reports/regression-${{ matrix.browser }}-junit.xml
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: regression-test-reports-${{ matrix.browser }}
+        path: |
+          reports/
+          logs/
+          screenshots/
+        retention-days: 30
+
+    - name: Publish test results
+      if: always()
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: reports/regression-${{ matrix.browser }}-junit.xml
+        check_name: Regression Test Results (${{ matrix.browser }})
+
+  # Job 3: Parallel Execution Test
+  parallel-tests:
+    name: Parallel Execution Test
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests in parallel
+      run: |
+        export BROWSER=chrome
+        export HEADLESS=true
+        pytest -n 4 -v \
+          --html=reports/parallel-report.html \
+          --self-contained-html \
+          --junitxml=reports/parallel-junit.xml \
+          --durations=10
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: parallel-test-reports
+        path: |
+          reports/
+          logs/
+        retention-days: 30
+
+  # Job 4: Test Report Summary
+  test-summary:
+    name: Generate Test Summary
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, regression-tests, parallel-tests]
+    if: always()
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Display test summary
+      run: |
+        echo "## Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Smoke Tests" >> $GITHUB_STEP_SUMMARY
+        if [ -f smoke-test-reports/reports/smoke-junit.xml ]; then
+          echo " Completed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo " Failed or Not Run" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Regression Tests" >> $GITHUB_STEP_SUMMARY
+        echo "- Chrome: Check artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- Firefox: Check artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Artifacts Available" >> $GITHUB_STEP_SUMMARY
+        echo "- Test Reports (HTML)" >> $GITHUB_STEP_SUMMARY
+        echo "- Screenshots (on failure)" >> $GITHUB_STEP_SUMMARY
+        echo "- Logs" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo " View detailed results in the 'Actions' tab" >> $GITHUB_STEP_SUMMARY
+
+  # Job 5: Notify on Failure (Optional)
+  notify-failure:
+    name: Notify on Test Failure
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, regression-tests]
+    if: failure()
+
+    steps:
+    - name: Send notification
+      run: |
+        echo " Tests failed! Check the workflow run for details."
+        echo "This is where you'd integrate Slack, Email, or other notifications"
+        # Example Slack notification (requires SLACK_WEBHOOK secret):
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data '{"text":"Test automation failed! Check GitHub Actions."}' \
+        #   ${{ secrets.SLACK_WEBHOOK }}
