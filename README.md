@@ -25,7 +25,7 @@ This project showcases a **comprehensive test automation solution** for an e-com
 - ✅ **85%+ Test Coverage** of core application features
 - ✅ **60% Faster Execution** through parallel testing
 - ✅ **Multi-Browser Support** (Chrome, Firefox, Edge)
-- ✅ **CI/CD Ready** with GitHub Actions, GitLab CI, and Jenkins
+- ✅ **CI/CD Ready** with GitHub Actions
 - ✅ **Zero Hard-Coded Waits** using intelligent wait strategies
 - ✅ **Comprehensive Reporting** with HTML reports and screenshots
 
