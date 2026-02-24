@@ -62,30 +62,6 @@ This project showcases a **comprehensive test automation solution** for an e-com
 - **Docker Support** - Containerized test execution
 
 
-##  Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   Test Layer                        │
-│  (test_login.py, test_products.py, test_cart.py)   │
-└─────────────────┬───────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────┐
-│              Page Object Layer                      │
-│   (home_page.py, login_page.py, products_page.py)  │
-└─────────────────┬───────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────┐
-│               Base Page Layer                       │
-│         (Common methods & utilities)                │
-└─────────────────┬───────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────┐
-│           Selenium WebDriver                        │
-│        (Browser automation engine)                  │
-└─────────────────────────────────────────────────────┘
-```
-
 ---
 
 ##  Test Coverage
@@ -166,42 +142,6 @@ pytest tests/test_login.py -v
 export HEADLESS=true
 pytest -v
 ```
-
----
-
-## 🛠️ Technologies Used
-
-### Core Framework
-
-- **Python 3.9+** - Programming language
-- **Selenium WebDriver 4.16** - Browser automation
-- **pytest 7.4.3** - Testing framework
-- **pytest-xdist** - Parallel test execution
-- **pytest-html** - HTML reporting
-
-### Utilities & Tools
-
-- **webdriver-manager** - Automatic driver management
-- **Faker** - Dynamic test data generation
-- **colorlog** - Enhanced logging
-- **allure-pytest** - Advanced reporting (optional)
-
-### Design Patterns
-
-- Page Object Model (POM)
-- Factory Pattern
-- Singleton Pattern
-- Strategy Pattern
-
----
-
-## 🎬 Demo
-
-### Sample Test Report
-
-![HTML Report]()
-
-*View detailed test reports with pass/fail status, execution time, and screenshots*
 
 ---
 
