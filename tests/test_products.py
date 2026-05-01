@@ -1,6 +1,5 @@
 
 import pytest
-import time
 from utilities.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,7 +20,7 @@ class TestProducts:
         # Step 1-2: Navigate to products page
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
+        assert products_page.is_products_page_loaded(), "Products page not loaded"
 
         # Step 3: Verify ALL PRODUCTS page
         assert products_page.is_products_page_loaded(), "Products page not loaded"
@@ -37,7 +36,6 @@ class TestProducts:
 
         # Step 5: Click View Product for first product
         products_page.click_view_product(0)
-        time.sleep(1)
 
         # Step 6: Verify product detail page
         assert products_page.is_product_detail_page_loaded(), "Product detail page not loaded"
@@ -65,15 +63,12 @@ class TestProducts:
         # Step 1-3: Navigate to products page
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
-
         assert products_page.is_products_page_loaded(), "Products page not loaded"
         logger.info("✓ Products page loaded")
 
         # Step 4-5: Search for product
         search_term = "top"
         products_page.search_product(search_term)
-        time.sleep(2)
 
         # Step 6: Verify searched products heading
         assert products_page.is_search_results_visible(), "Search results not visible"
@@ -95,11 +90,10 @@ class TestProducts:
 
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
+        assert products_page.is_products_page_loaded(), "Products page not loaded"
 
         # Search for non-existent product
         products_page.search_product("NonExistentProduct123XYZ")
-        time.sleep(2)
 
         # Should still show searched products heading
         assert products_page.is_search_results_visible(), "Search results page not displayed"
@@ -122,14 +116,13 @@ class TestProducts:
 
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
+        assert products_page.is_products_page_loaded(), "Products page not loaded"
 
         # Go to product detail page
         products_page.click_view_product(0)
-        time.sleep(1)
 
         # Verify quantity field is visible
-        assert products_page.is_element_visible(products_page.QUANTITY_INPUT), "Quantity input not visible"
+        assert products_page.is_element_visible(products_page.QUANTITY_INPUT, timeout=15), "Quantity input not visible"
 
         # Set quantity
         test_quantity = 4
@@ -151,7 +144,6 @@ class TestProducts:
 
         # Step 1: Navigate to home page
         home_page.open()
-        time.sleep(1)
 
         # Step 2: Verify categories visible
         assert home_page.is_element_visible(home_page.CATEGORY_PRODUCTS), "Categories not visible"
@@ -159,9 +151,7 @@ class TestProducts:
 
         # Step 3-4: Click category and subcategory
         home_page.click_category("Women")
-        time.sleep(1)
         home_page.click_category("Dress")
-        time.sleep(2)
 
         # Step 5: Verify category products displayed
         current_url = home_page.get_current_url()
@@ -182,7 +172,7 @@ class TestProducts:
         # Step 1: Navigate to products page
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
+        assert products_page.is_products_page_loaded(), "Products page not loaded"
 
         # Step 2: Verify brands visible
         assert products_page.is_brands_panel_visible(), "Brands panel not visible"
@@ -190,7 +180,6 @@ class TestProducts:
 
         # Step 3: Click on a brand
         products_page.click_brand("Polo")
-        time.sleep(2)
 
         # Step 4: Verify brand products displayed
         current_url = products_page.get_current_url()
@@ -209,23 +198,21 @@ class TestProducts:
 
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
+        assert products_page.is_products_page_loaded(), "Products page not loaded"
 
         # Add first product
         products_page.add_product_to_cart(0)
-        time.sleep(1)
 
         # Click Continue Shopping
         products_page.click_continue_shopping()
-        time.sleep(1)
+        assert products_page.wait_helper.wait_for_element_invisible(products_page.CONTINUE_SHOPPING_BUTTON, timeout=10), "Continue shopping modal did not close"
 
         # Add second product
         products_page.add_product_to_cart(1)
-        time.sleep(1)
 
         # Click View Cart
         products_page.click_view_cart_modal()
-        time.sleep(2)
+        assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
 
         # Verify cart has 2 items
         cart_items_count = cart_page.get_cart_items_count()
