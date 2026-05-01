@@ -1,7 +1,13 @@
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
+    WebDriverException,
+)
 from utilities.wait_helper import WaitHelper
 from utilities.logger import get_logger
 from utilities.screenshot import ScreenshotHelper
@@ -54,22 +60,43 @@ class BasePage:
             logger.debug(f"No elements found: {locator} - returning empty list")
             return []
 
-    def click(self, locator):
+    def click(self, locator, timeout=None, retries=3):
         """Click on an element"""
-        try:
-            element = self.wait_helper.wait_for_element_clickable(locator)
-            element.click()
-            logger.info(f"Clicked on element: {locator}")
-        except Exception as e:
-            logger.warning(f"Normal click failed: {e}, trying JavaScript click")
+        last_error = None
+
+        for attempt in range(1, retries + 1):
             try:
-                # Fallback to JavaScript click
-                element = self.find_element(locator)
-                self.driver.execute_script("arguments[0].click();", element)
-                logger.info(f"Clicked on element using JavaScript: {locator}")
-            except Exception as e2:
-                logger.error(f"Failed to click element: {locator}")
-                raise
+                element = self.wait_helper.wait_for_element_clickable(locator, timeout)
+                self.driver.execute_script(
+                    "arguments[0].scrollIntoView({block: 'center', inline: 'center'});",
+                    element,
+                )
+                element.click()
+                logger.info(f"Clicked on element: {locator}")
+                return
+            except (
+                ElementClickInterceptedException,
+                StaleElementReferenceException,
+                TimeoutException,
+                WebDriverException,
+            ) as e:
+                last_error = e
+                logger.warning(
+                    f"Click attempt {attempt}/{retries} failed for {locator}: {e}"
+                )
+
+        try:
+            element = self.find_element(locator)
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView({block: 'center', inline: 'center'});",
+                element,
+            )
+            self.driver.execute_script("arguments[0].click();", element)
+            logger.info(f"Clicked on element using JavaScript: {locator}")
+            return
+        except Exception as e:
+            logger.error(f"Failed to click element: {locator}")
+            raise last_error or e
 
     def send_keys(self, locator, text):
         """Send text to an input field"""
