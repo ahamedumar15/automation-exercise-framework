@@ -92,8 +92,14 @@ class ProductsPage(BasePage):
 
     def is_product_detail_page_loaded(self):
         """Check if product detail page is loaded"""
-        return (self.is_element_visible(self.PRODUCT_DETAIL_NAME) and
-                self.is_element_visible(self.PRODUCT_DETAIL_PRICE))
+        return (
+            self.is_element_visible(self.PRODUCT_DETAIL_NAME, timeout=10)
+            and self.is_element_visible(self.PRODUCT_DETAIL_CATEGORY, timeout=10)
+            and self.is_element_visible(self.PRODUCT_DETAIL_PRICE, timeout=10)
+            and self.is_element_visible(self.PRODUCT_DETAIL_AVAILABILITY, timeout=10)
+            and self.is_element_visible(self.PRODUCT_DETAIL_CONDITION, timeout=10)
+            and self.is_element_visible(self.PRODUCT_DETAIL_BRAND, timeout=10)
+        )
 
     def get_product_detail_info(self):
         """Get product detail information"""
@@ -158,7 +164,8 @@ class ProductsPage(BasePage):
 
     def set_product_quantity(self, quantity):
         """Set product quantity on detail page"""
-        self.find_element(self.QUANTITY_INPUT).clear()
+        quantity_input = self.wait_helper.wait_for_element_visible(self.QUANTITY_INPUT, timeout=15)
+        quantity_input.clear()
         self.send_keys(self.QUANTITY_INPUT, str(quantity))
         logger.info(f"Set product quantity to: {quantity}")
 
@@ -169,7 +176,10 @@ class ProductsPage(BasePage):
 
     def click_brand(self, brand_name):
         """Click on a specific brand"""
-        brand_locator = (By.LINK_TEXT, brand_name)
+        brand_locator = (
+            By.XPATH,
+            f"//div[contains(@class, 'brands_products')]//a[normalize-space()='{brand_name}']",
+        )
         self.scroll_to_element(self.BRANDS_PANEL)
         self.click(brand_locator)
         logger.info(f"Clicked on brand: {brand_name}")
