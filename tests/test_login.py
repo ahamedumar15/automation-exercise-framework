@@ -1,6 +1,5 @@
 
 import pytest
-import time
 from testdata.user_data import UserData, LoginCredentials
 from utilities.logger import get_logger
 
@@ -33,11 +32,11 @@ class TestLogin:
 
         if login_page.is_account_created():
             login_page.click_continue()
-            time.sleep(1)
+            assert home_page.is_logged_in(), "User not logged in after continue"
 
             # Logout
             home_page.click_logout()
-            time.sleep(1)
+            assert login_page.is_login_form_visible(), "Login form not visible after logout"
 
             # Step 3-4: Navigate to login page
             assert login_page.is_login_form_visible(), "Login form not visible"
@@ -45,7 +44,6 @@ class TestLogin:
 
             # Step 5-6: Login with credentials
             login_page.login(user_data['email'], user_data['password'])
-            time.sleep(2)
 
             # Step 7: Verify login successful
             assert home_page.is_logged_in(), "User not logged in"
@@ -76,7 +74,6 @@ class TestLogin:
 
         # Step 4-5: Login with invalid credentials
         login_page.login("invalid@test.com", "WrongPassword123")
-        time.sleep(1)
 
         # Step 6: Verify error message
         assert login_page.is_login_error_displayed(), "Login error not displayed"
@@ -104,7 +101,7 @@ class TestLogin:
 
         if login_page.is_account_created():
             login_page.click_continue()
-            time.sleep(1)
+            assert home_page.is_logged_in(), "User not logged in after continue"
 
             # Verify logged in
             assert home_page.is_logged_in(), "User not logged in"
@@ -112,7 +109,7 @@ class TestLogin:
 
             # Logout
             home_page.click_logout()
-            time.sleep(1)
+            assert login_page.is_login_form_visible(), "Not redirected to login page"
 
             # Verify redirected to login page
             assert login_page.is_login_form_visible(), "Not redirected to login page"
@@ -120,7 +117,6 @@ class TestLogin:
 
             # Cleanup: Login and delete account
             login_page.login(user_data['email'], user_data['password'])
-            time.sleep(2)
 
             if home_page.is_logged_in():
                 home_page.click_delete_account()
@@ -158,7 +154,6 @@ class TestLogin:
 
         # Try to login with empty fields
         login_page.login("", "")
-        time.sleep(1)
 
         # Should remain on login page
         assert login_page.is_login_form_visible(), "Should remain on login page"
@@ -183,16 +178,16 @@ class TestLogin:
 
         if login_page.is_account_created():
             login_page.click_continue()
-            time.sleep(1)
+            assert home_page.is_logged_in(), "User not logged in after continue"
 
             # Verify logged in
             assert home_page.is_logged_in(), "User not logged in"
 
             # Navigate to different page and back
             home_page.click_products()
-            time.sleep(1)
+            assert home_page.wait_helper.wait_for_url_contains("/products"), "Products page did not load"
             home_page.click(home_page.HOME_LINK)
-            time.sleep(1)
+            assert home_page.is_home_page_loaded(), "Home page did not reload"
 
             # Should still be logged in
             assert home_page.is_logged_in(), "User session not maintained"
