@@ -1,6 +1,4 @@
-
 import pytest
-import time
 from utilities.logger import get_logger
 
 logger = get_logger(__name__)
@@ -17,39 +15,32 @@ class TestCart:
         """
         logger.info("Starting test: Add products in cart")
 
-        # Step 1: Navigate to home page
         home_page.open()
         home_page.click_products()
-        time.sleep(2)
+        assert home_page.wait_helper.wait_for_url_contains("/products"), "Products page did not load"
 
-        # Step 2-3: Add first product
         home_page.hover_and_click_add_to_cart(0)
-        time.sleep(2)
 
-        # Step 4: Continue shopping
         try:
             if home_page.is_element_visible(home_page.CONTINUE_SHOPPING_BUTTON, timeout=3):
                 continue_btn = home_page.find_element(home_page.CONTINUE_SHOPPING_BUTTON)
                 continue_btn.click()
-                time.sleep(1)
-        except:
+                assert home_page.wait_helper.wait_for_element_invisible(
+                    home_page.CONTINUE_SHOPPING_BUTTON,
+                    timeout=10,
+                ), "Continue shopping modal did not close"
+        except Exception:
             logger.info("Continue shopping button not found or already closed")
 
-        # Step 5: Add second product
         home_page.hover_and_click_add_to_cart(1)
-        time.sleep(2)
 
-        # Step 6: View cart
         home_page.click_cart()
-        time.sleep(2)
-
-        # Step 7: Verify products in cart
         assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
+
         cart_items = cart_page.get_cart_items_count()
         assert cart_items >= 1, f"Expected at least 1 item, got {cart_items}"
         logger.info(f" Cart has {cart_items} items")
 
-        # Step 8: Verify product details
         if cart_items >= 1:
             product1_details = cart_page.get_product_details(0)
             assert product1_details is not None, "Product 1 details not found"
@@ -62,38 +53,65 @@ class TestCart:
 
     @pytest.mark.regression
     def test_verify_product_quantity_in_cart(self, home_page, products_page, cart_page):
+                home_page.open()
+                home_page.click_products()
+                assert home_page.wait_helper.wait_for_url_contains("/products"), "Products page did not load"
+
+                home_page.hover_and_click_add_to_cart(0)
+
+                try:
+                    if home_page.is_element_visible(home_page.CONTINUE_SHOPPING_BUTTON, timeout=3):
+                        continue_btn = home_page.find_element(home_page.CONTINUE_SHOPPING_BUTTON)
+                        continue_btn.click()
+                        assert home_page.wait_helper.wait_for_element_invisible(home_page.CONTINUE_SHOPPING_BUTTON, timeout=10), "Continue shopping modal did not close"
+                except Exception:
+                    logger.info("Continue shopping button not found or already closed")
+
+                home_page.hover_and_click_add_to_cart(1)
+
+                home_page.click_cart()
+                assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
+
+                cart_items = cart_page.get_cart_items_count()
+                assert cart_items >= 1, f"Expected at least 1 item, got {cart_items}"
+                logger.info(f" Cart has {cart_items} items")
+
+                if cart_items >= 1:
+                    product1_details = cart_page.get_product_details(0)
+                    assert product1_details is not None, "Product 1 details not found"
+                    logger.info(f" Product 1: {product1_details}")
+
+                if cart_items >= 2:
+                    product2_details = cart_page.get_product_details(1)
+                    assert product2_details is not None, "Product 2 details not found"
+                    logger.info(f" Product 2: {product2_details}")
+
+    @pytest.mark.regression
+    def test_verify_product_quantity_in_cart(self, home_page, products_page, cart_page):
         """
         Test Case TC_CART_002: Verify Product quantity in Cart
         """
         logger.info("Starting test: Verify product quantity in cart")
 
-        # Step 1-2: Navigate and view product
         home_page.open()
         home_page.click_products()
-        time.sleep(1)
+        assert products_page.is_products_page_loaded(), "Products page not loaded"
 
         products_page.click_view_product(0)
-        time.sleep(1)
 
-        # Step 3: Verify product detail page
         assert products_page.is_product_detail_page_loaded(), "Product detail page not loaded"
         product_info = products_page.get_product_detail_info()
         product_name = product_info['name']
         logger.info(f" Product detail opened: {product_name}")
 
-        # Step 4: Set quantity to 4
         test_quantity = 4
         products_page.set_product_quantity(test_quantity)
 
-        # Step 5: Add to cart
         products_page.add_to_cart_from_detail_page()
-        time.sleep(1)
 
-        # Step 6: View cart
         products_page.click_view_cart_modal()
-        time.sleep(2)
+        assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
 
-        # Step 7: Verify quantity
         assert cart_page.verify_product_quantity(product_name, test_quantity), \
             f"Product quantity not {test_quantity}"
         logger.info(f" Product quantity verified: {test_quantity}")
@@ -105,27 +123,20 @@ class TestCart:
         """
         logger.info("Starting test: Remove products from cart")
 
-        # Step 1-2: Add product to cart
         home_page.open()
         home_page.click_products()
-        time.sleep(2)
+        assert home_page.wait_helper.wait_for_url_contains("/products"), "Products page did not load"
         home_page.hover_and_click_add_to_cart(0)
-        time.sleep(2)
 
-        # Step 3: Navigate to cart
         home_page.click_cart()
-        time.sleep(2)
+        assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
 
-        # Step 4: Verify cart has items
         initial_count = cart_page.get_cart_items_count()
         assert initial_count > 0, "Cart is empty"
         logger.info(f" Cart has {initial_count} items")
 
-        # Step 5: Remove product
         cart_page.delete_product(0)
-        time.sleep(2)
 
-        # Step 6: Verify product removed
         final_count = cart_page.get_cart_items_count()
         assert final_count == initial_count - 1, "Product not removed"
         logger.info(f" Product removed. Remaining items: {final_count}")
@@ -138,54 +149,45 @@ class TestCart:
         logger.info("Starting test: View cart after login")
 
         from testdata.user_data import UserData
+
         user_data = UserData.generate_user()
 
-        # Step 1: Add products
         home_page.open()
         home_page.click_products()
-        time.sleep(2)
+        assert home_page.wait_helper.wait_for_url_contains("/products"), "Products page did not load"
         home_page.hover_and_click_add_to_cart(0)
-        time.sleep(2)
 
-        # Step 2-3: View cart
         home_page.click_cart()
-        time.sleep(2)
-
         assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
+
         products_before = cart_page.get_all_product_names()
         logger.info(f" Products in cart before login: {products_before}")
 
-        # Step 4-5: Proceed to checkout (should prompt login)
         cart_page.click_proceed_to_checkout()
-        time.sleep(1)
 
         if cart_page.is_register_login_modal_visible():
             cart_page.click_register_login_link()
-            time.sleep(1)
+            assert login_page.is_signup_form_visible() or login_page.is_login_form_visible(), \
+                "Login/signup form not visible"
 
-            # Step 6: Complete registration
             login_page.enter_signup_details(user_data['name'], user_data['email'])
             login_page.click_signup_button()
             login_page.complete_registration(user_data)
 
             if login_page.is_account_created():
                 login_page.click_continue()
-                time.sleep(1)
+                assert home_page.is_logged_in(), "User not logged in after continue"
 
-                # Step 7: Navigate to cart
                 home_page.click_cart()
-                time.sleep(2)
+                assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
 
-                # Step 8: Verify cart products
                 products_after = cart_page.get_all_product_names()
                 logger.info(f" Products in cart after login: {products_after}")
 
-                # Cart should maintain products
                 assert len(products_after) > 0, "Cart is empty after login"
 
-                # Cleanup
                 home_page.click(home_page.HOME_LINK)
-                time.sleep(1)
+                assert home_page.is_home_page_loaded(), "Home page did not reload"
                 home_page.click_delete_account()
                 if login_page.is_account_deleted():
                     login_page.click_continue()
@@ -198,18 +200,13 @@ class TestCart:
         """
         logger.info("Starting test: Verify empty cart message")
 
-        # Navigate directly to cart without adding products
         cart_page.open()
-        time.sleep(1)
 
-        # Verify empty cart message or no products
         if cart_page.is_cart_empty():
             logger.info(" Cart is empty as expected")
             assert True
         else:
-            # If there are items, delete them
             cart_page.delete_all_products()
-            time.sleep(1)
             assert cart_page.is_cart_empty(), "Cart not empty after deleting all"
             logger.info(" Cart emptied successfully")
 
@@ -220,22 +217,17 @@ class TestCart:
         """
         logger.info("Starting test: Subscription in cart page")
 
-        # Step 1: Navigate to cart
         cart_page.open()
-
-        # Step 2-3: Scroll to subscription section
         cart_page.scroll_to_bottom()
 
         assert cart_page.is_element_visible(cart_page.SUBSCRIPTION_EMAIL), "Subscription section not visible"
         logger.info(" Subscription section visible")
 
-        # Step 4: Subscribe
         test_email = "test_subscription@example.com"
         cart_page.subscribe_email(test_email)
-        time.sleep(2)
 
-        # Step 5: Verify success
-        assert cart_page.subscribe_email(test_email), "Subscription not successful"
+        assert cart_page.is_element_visible(cart_page.SUCCESS_SUBSCRIBE_ALERT, timeout=10), \
+            "Subscription not successful"
         logger.info(" Subscription successful")
 
     @pytest.mark.regression
@@ -245,29 +237,27 @@ class TestCart:
         """
         logger.info("Starting test: Calculate cart total")
 
-        # Add multiple products
         home_page.open()
         home_page.click_products()
-        time.sleep(2)
+        assert home_page.wait_helper.wait_for_url_contains("/products"), "Products page did not load"
         home_page.hover_and_click_add_to_cart(0)
-        time.sleep(2)
 
         try:
             if home_page.is_element_visible(home_page.CONTINUE_SHOPPING_BUTTON, timeout=3):
                 continue_btn = home_page.find_element(home_page.CONTINUE_SHOPPING_BUTTON)
                 continue_btn.click()
-                time.sleep(1)
-        except:
+                assert home_page.wait_helper.wait_for_element_invisible(
+                    home_page.CONTINUE_SHOPPING_BUTTON,
+                    timeout=10,
+                ), "Continue shopping modal did not close"
+        except Exception:
             logger.info("Continue shopping not needed")
 
         home_page.hover_and_click_add_to_cart(1)
-        time.sleep(2)
 
-        # Navigate to cart
         home_page.click_cart()
-        time.sleep(2)
+        assert cart_page.is_cart_page_loaded(), "Cart page not loaded"
 
-        # Calculate and verify total
         total_price = cart_page.calculate_total_price()
         logger.info(f" Total cart price: Rs. {total_price}")
 
