@@ -58,10 +58,6 @@ class DriverFactory:
             options.add_argument("--headless=new")
             options.add_argument("--window-size=1920,1080")
 
-        # Add this: point to your .crx file
-        extension_path = os.path.abspath("extensions/CJPALHDLNBPAFIAMEJDNHCPHJBKEIAGM_1_68_0_0.crx")  # Or relative: os.path.join(os.path.dirname(__file__), "..", "extensions", "your_filename.crx")
-        options.add_extension(extension_path)
-
         service = ChromeService(ChromeDriverManager().install())
         return webdriver.Chrome(service=service, options=options)
 
