@@ -16,7 +16,7 @@ class HomePage(BasePage):
     PRODUCTS_LINK = (By.XPATH, "//a[@href='/products']")
     CART_LINK = (By.XPATH, "//a[normalize-space()='Cart']")
     SIGNUP_LOGIN_LINK = (By.XPATH, "//a[normalize-space()='Signup / Login']")
-    LOGOUT_LINK = (By.LINK_TEXT, "Logout")
+    LOGOUT_LINK = (By.CSS_SELECTOR, "a[href='/logout']")
     DELETE_ACCOUNT_LINK = (By.LINK_TEXT, "Delete Account")
     CONTACT_US_LINK = (By.LINK_TEXT, "Contact us")
     TEST_CASES_LINK = (By.LINK_TEXT, "Test Cases")
@@ -136,7 +136,10 @@ class HomePage(BasePage):
 
     def click_category(self, category_name):
         """Click on a category"""
-        category_locator = (By.LINK_TEXT, category_name)
+        category_locator = (
+            By.XPATH,
+            f"//div[contains(@class, 'left-sidebar')]//a[normalize-space()='{category_name}']",
+        )
         self.scroll_to_element(category_locator)
         self.click(category_locator)
         logger.info(f"Clicked on category: {category_name}")
